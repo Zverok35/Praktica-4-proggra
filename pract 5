@@ -1,0 +1,130 @@
+import java.io.*;
+import java.util.*;
+
+public class CalculatorWithHistory {
+    private static final String HISTORY_FILE = "calc_history.txt";
+
+    public static void main(String[] args) throws IOException {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("История предыдущих вычислений:");
+        showHistory();
+
+        while (true) {
+            System.out.print("Введите выражение (или 'exit' для выхода): ");
+            String expression = scanner.nextLine();
+
+            if (expression.equalsIgnoreCase("exit")) {
+                break;
+            }
+
+            try {
+                double result = evaluate(expression);
+                String record = expression + " = " + result;
+                System.out.println(record);
+                saveToHistory(record);
+            } catch (Exception e) {
+                System.out.println("Ошибка: " + e.getMessage());
+            }
+        }
+    }
+
+    private static void showHistory() {
+        try (BufferedReader reader = new BufferedReader(new FileReader(HISTORY_FILE))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (IOException e) {
+            System.out.println("История пуста или отсутствует.");
+        }
+    }
+
+    private static void saveToHistory(String record) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(HISTORY_FILE, true))) {
+            writer.write(record);
+            writer.newLine();
+        }
+    }
+
+    private static double evaluate(String expression) {
+        expression = expression.replaceAll("\\s+", "");
+        return parseExpression(expression);
+    }
+
+    // Простой рекурсивный парсер (поддерживает: + - * / // % ^ | |
+    private static double parseExpression(String expr) {
+        if (expr.startsWith("|")) {
+            int end = expr.indexOf('|', 1);
+            if (end == -1) throw new IllegalArgumentException("Неверный синтаксис модуля");
+            double val = parseExpression(expr.substring(1, end));
+            double absVal = Math.abs(val);
+            if (end + 1 < expr.length()) {
+                return parseExpression(absVal + expr.substring(end + 1));
+            }
+            return absVal;
+        }
+
+        List<String> tokens = tokenize(expr);
+        return evalTokens(tokens);
+    }
+
+    private static List<String> tokenize(String expr) {
+        List<String> tokens = new ArrayList<>();
+        StringBuilder number = new StringBuilder();
+
+        for (int i = 0; i < expr.length(); i++) {
+            char ch = expr.charAt(i);
+            if (Character.isDigit(ch) || ch == '.') {
+                number.append(ch);
+            } else {
+                if (number.length() > 0) {
+                    tokens.add(number.toString());
+                    number.setLength(0);
+                }
+
+                if (ch == '/' && i + 1 < expr.length() && expr.charAt(i + 1) == '/') {
+                    tokens.add("//");
+                    i++;
+                } else {
+                    tokens.add(Character.toString(ch));
+                }
+            }
+        }
+
+        if (number.length() > 0) {
+            tokens.add(number.toString());
+        }
+
+        return tokens;
+    }
+
+    private static double evalTokens(List<String> tokens) {
+        // Обрабатываем операции по приоритету: ^, *, /, //, %, +, -
+        String[] precedence = {"^", "*", "/", "//", "%", "+", "-"};
+
+        for (String op : precedence) {
+            for (int i = 0; i < tokens.size(); i++) {
+                if (tokens.get(i).equals(op)) {
+                    double a = Double.parseDouble(tokens.get(i - 1));
+                    double b = Double.parseDouble(tokens.get(i + 1));
+                    double res = switch (op) {
+                        case "+" -> a + b;
+                        case "-" -> a - b;
+                        case "*" -> a * b;
+                        case "/" -> a / b;
+                        case "//" -> (int) (a / b);
+                        case "%" -> a % b;
+                        case "^" -> Math.pow(a, b);
+                        default -> throw new IllegalArgumentException("Неизвестный оператор: " + op);
+                    };
+                    tokens.set(i - 1, String.valueOf(res));
+                    tokens.remove(i); // оператор
+                    tokens.remove(i); // правый операнд
+                    i--;
+                }
+            }
+        }
+
+        return Double.parseDouble(tokens.get(0));
+    }
+}
