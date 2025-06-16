@@ -1,0 +1,271 @@
+import java.util.*;
+import java.util.stream.*;
+
+public class AllTasks {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            System.out.println("\nВыберите номер задачи (28–39), 0 — выход:");
+            int task = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (task) {
+                case 0:
+                    System.out.println("Выход.");
+                    return;
+
+                case 28: {
+                    System.out.println("Введите текст:");
+                    String text = scanner.nextLine();
+                    System.out.println("Введите сдвиг:");
+                    int shift = scanner.nextInt();
+                    scanner.nextLine();
+                    String encrypted = CaesarCipher.encrypt(text, shift);
+                    String decrypted = CaesarDecrypt.decrypt(encrypted, shift);
+                    System.out.println("Зашифровано: " + encrypted);
+                    System.out.println("Расшифровано: " + decrypted);
+                    break;
+                }
+
+                case 29: {
+                    System.out.println("Введите число n (> 0):");
+                    int n = scanner.nextInt();
+                    scanner.nextLine();
+                    System.out.println("Разность квадратов: " + SquareDiff.findPair(n));
+                    break;
+                }
+
+                case 30: {
+                    System.out.println("Введите число n и число начала ряда:");
+                    int n = scanner.nextInt();
+                    int a = scanner.nextInt();
+                    scanner.nextLine();
+                    System.out.println("Сумма: " + SequenceSum.calc(n, a));
+                    break;
+                }
+
+                case 31: {
+                    List<Integer> distances = Arrays.asList(50, 55, 57, 58, 60);
+                    int t = 163;
+                    int k = 3;
+                    System.out.println("Максимальная сумма расстояний: " + Travel.chooseBestSum(t, k, distances));
+                    break;
+                }
+
+                case 32: {
+                    System.out.println("Введите число:");
+                    int num = scanner.nextInt();
+                    scanner.nextLine();
+                    System.out.println("Наиболее часто встречающаяся цифра: " + MaxDigitFrequency.findDigit(num));
+                    break;
+                }
+
+                case 33: {
+                    System.out.println("Введите количество палочек (n):");
+                    int n = scanner.nextInt();
+                    scanner.nextLine();
+                    System.out.println("Победит: " + StickGameWinner1.getWinner(n));
+                    break;
+                }
+
+                case 34: {
+                    System.out.println("Введите количество палочек (n):");
+                    int n = scanner.nextInt();
+                    scanner.nextLine();
+                    System.out.println("Победит: " + StickGameWinner2.getWinner(n));
+                    break;
+                }
+
+                case 35: {
+                    List<String> input = Arrays.asList("56", "65", "74", "100", "99", "68", "180", "90");
+                    List<String> sorted = FitnessSort.sortBySum(input);
+                    System.out.println("Отсортированный список: " + sorted);
+                    break;
+                }
+
+                case 36: {
+                    System.out.println("Введите зашифрованный текст:");
+                    String encrypted = scanner.nextLine();
+                    System.out.println("Введите сдвиг:");
+                    int shift = scanner.nextInt();
+                    scanner.nextLine();
+                    System.out.println("Расшифровано: " + CaesarDecrypt.decrypt(encrypted, shift));
+                    break;
+                }
+
+                case 37: {
+                    System.out.println("Введите секретный код (4 символа):");
+                    String secret = scanner.nextLine();
+                    System.out.println("Введите вашу догадку (4 символа):");
+                    String guess = scanner.nextLine();
+                    System.out.println("Совпадений: " + GuessCode.countMatches(secret, guess));
+                    break;
+                }
+
+                case 38: {
+                    System.out.println("Введите количество игроков и номер старта:");
+                    int n = scanner.nextInt();
+                    int start = scanner.nextInt();
+                    scanner.nextLine();
+                    List<Integer> result = EveryThirdOut.josephus(n, start);
+                    System.out.println("Порядок выбывания: " + result);
+                    break;
+                }
+
+                case 39: {
+                    System.out.println("Введите текст:");
+                    String text = scanner.nextLine();
+                    String result = WordPlay.transformText(text);
+                    System.out.println("Результат: " + result);
+                    break;
+                }
+
+                default:
+                    System.out.println("Неверный номер задачи.");
+            }
+        }
+    }
+}
+
+// 28. Шифр Цезаря
+class CaesarCipher {
+    public static String encrypt(String text, int shift) {
+        StringBuilder result = new StringBuilder();
+        for (char c : text.toCharArray()) {
+            if (Character.isLetter(c)) {
+                char base = Character.isUpperCase(c) ? 'A' : 'a';
+                result.append((char) ((c - base + shift + 26) % 26 + base));
+            } else {
+                result.append(c);
+            }
+        }
+        return result.toString();
+    }
+}
+
+class CaesarDecrypt {
+    public static String decrypt(String text, int shift) {
+        return CaesarCipher.encrypt(text, -shift);
+    }
+}
+
+// 29. Разность квадратов
+class SquareDiff {
+    public static String findPair(int n) {
+        for (int x = 1; x < n; x++) {
+            for (int y = x + 1; y < n; y++) {
+                if (y * y - x * x == n) {
+                    return x + ", " + y;
+                }
+            }
+        }
+        return "Нет пары";
+    }
+}
+
+// 30. Последовательность
+class SequenceSum {
+    public static int calc(int n, int a) {
+        return (2 * a + n - 1) * n / 2;
+    }
+}
+
+// 31. Путешествие
+class Travel {
+    public static Integer chooseBestSum(int t, int k, List<Integer> ls) {
+        return combine(ls, k, 0, 0, t);
+    }
+
+    private static Integer combine(List<Integer> ls, int k, int start, int sum, int t) {
+        if (k == 0) return sum <= t ? sum : null;
+        Integer best = null;
+        for (int i = start; i < ls.size(); i++) {
+            Integer res = combine(ls, k - 1, i + 1, sum + ls.get(i), t);
+            if (res != null && (best == null || res > best)) best = res;
+        }
+        return best;
+    }
+}
+
+// 32. Частая цифра
+class MaxDigitFrequency {
+    public static int findDigit(int num) {
+        int[] freq = new int[10];
+        for (char c : String.valueOf(num).toCharArray()) {
+            if (Character.isDigit(c)) freq[c - '0']++;
+        }
+        int max = 0, digit = 0;
+        for (int i = 0; i < 10; i++) {
+            if (freq[i] > max) {
+                max = freq[i];
+                digit = i;
+            }
+        }
+        return digit;
+    }
+}
+
+// 33. Игра в палочки (стратегия 1)
+class StickGameWinner1 {
+    public static String getWinner(int n) {
+        return (n % 4 == 0) ? "Второй" : "Первый";
+    }
+}
+
+// 34. Игра в палочки (стратегия 2)
+class StickGameWinner2 {
+    public static String getWinner(int n) {
+        return ((n - 1) % 4 == 0) ? "Второй" : "Первый";
+    }
+}
+
+// 35. Сортировка по сумме цифр
+class FitnessSort {
+    public static List<String> sortBySum(List<String> list) {
+        list.sort(Comparator.comparingInt(s -> Arrays.stream(s.split(" "))
+            .mapToInt(Integer::parseInt).sum()));
+        return list;
+    }
+}
+
+// 37. Угадай код
+class GuessCode {
+    public static int countMatches(String secret, String guess) {
+        int matches = 0;
+        for (int i = 0; i < 4; i++) {
+            if (secret.charAt(i) == guess.charAt(i)) matches++;
+        }
+        return matches;
+    }
+}
+
+// 38. Игра с третьим выбыванием
+class EveryThirdOut {
+    public static List<Integer> josephus(int n, int start) {
+        List<Integer> people = new ArrayList<>();
+        for (int i = 1; i <= n; i++) people.add(i);
+        List<Integer> result = new ArrayList<>();
+        int index = start - 1;
+        while (!people.isEmpty()) {
+            index = (index + 2) % people.size();
+            result.add(people.remove(index));
+        }
+        return result;
+    }
+}
+
+// 39. Игры со словами
+class WordPlay {
+    public static String transformText(String text) {
+        String[] words = text.split("(?<=\\w)(?=\\W)|(?<=\\W)(?=\\w)");
+        StringBuilder result = new StringBuilder();
+        for (String word : words) {
+            if (word.matches("\\w+")) {
+                result.append(word.substring(1)).append(word.charAt(0)).append("ay");
+            } else {
+                result.append(word);
+            }
+        }
+        return result.toString();
+    }
+}
