@@ -1,0 +1,91 @@
+import java.util.*;
+
+public class PracticeTasks45To49 {
+
+    // Задача 45: Арабские -> Римские
+    public static String arabicToRoman(int num) {
+        if (num < 1 || num >= 10000) return "Out of range";
+        String[] thousands = {"", "M", "MM", "MMM", "MMMM", "MMMMM", "MMMMMM", "MMMMMMM", "MMMMMMMM", "MMMMMMMMM"};
+        String[] hundreds = {"", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM"};
+        String[] tens = {"", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC"};
+        String[] ones = {"", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"};
+        return thousands[num / 1000] + hundreds[(num % 1000) / 100] +
+                tens[(num % 100) / 10] + ones[num % 10];
+    }
+
+    // Задача 46: Римские -> Арабские
+    public static int romanToArabic(String roman) {
+        Map<Character, Integer> map = Map.of(
+                'I', 1, 'V', 5, 'X', 10, 'L', 50, 'C', 100, 'D', 500, 'M', 1000
+        );
+        int result = 0;
+        for (int i = 0; i < roman.length(); i++) {
+            int value = map.get(roman.charAt(i));
+            if (i + 1 < roman.length() && map.get(roman.charAt(i + 1)) > value) {
+                result -= value;
+            } else {
+                result += value;
+            }
+        }
+        return result;
+    }
+
+    // Задача 47: Змейка
+    public static int[][] snakeMatrix(int n) {
+        int[][] matrix = new int[n][n];
+        int num = 1;
+        for (int i = 0; i < n; i++) {
+            if (i % 2 == 0) {
+                for (int j = 0; j < n; j++) matrix[i][j] = num++;
+            } else {
+                for (int j = n - 1; j >= 0; j--) matrix[i][j] = num++;
+            }
+        }
+        return matrix;
+    }
+
+    // Задача 48: Последовательность x = 2 * x + 1
+    public static List<Integer> generateSequence(int limit) {
+        Set<Integer> seen = new LinkedHashSet<>();
+        Queue<Integer> queue = new LinkedList<>();
+        queue.add(1);
+        while (!queue.isEmpty()) {
+            int x = queue.poll();
+            if (x > limit || seen.contains(x)) continue;
+            seen.add(x);
+            queue.add(2 * x);
+            queue.add(2 * x + 1);
+        }
+        return new ArrayList<>(seen);
+    }
+
+    // Задача 49: fusc(n)
+    public static int fusc(int n) {
+        int a = 0, b = 1;
+        while (n > 0) {
+            if (n % 2 == 0) {
+                n /= 2;
+                b = a + b;
+            } else {
+                n = (n - 1) / 2;
+                a = a + b;
+            }
+        }
+        return a;
+    }
+
+    public static void main(String[] args) {
+        // Примеры
+        System.out.println("45. 1994 -> " + arabicToRoman(1994)); // MCMXCIV
+        System.out.println("46. MCMXCIV -> " + romanToArabic("MCMXCIV")); // 1994
+
+        System.out.println("47. Змейка 3x3:");
+        int[][] snake = snakeMatrix(3);
+        for (int[] row : snake) System.out.println(Arrays.toString(row));
+
+        System.out.println("48. Последовательность до 100:");
+        System.out.println(generateSequence(100));
+
+        System.out.println("49. fusc(10) = " + fusc(10));
+    }
+}
