@@ -1,0 +1,104 @@
+import java.util.*;
+
+public class AISD2ControlPoint {
+
+    // Task 1
+    public static boolean isSuffix(String a, String b) {
+        return a.endsWith(b);
+    }
+
+    // Task 2
+    public static void greet(String name) {
+        String formatted = name.substring(0, 1).toUpperCase() + name.substring(1).toLowerCase();
+        System.out.println("Привет, " + formatted + "!");
+    }
+
+    // Task 3
+    public static String removeVowels(String input) {
+        return input.replaceAll("(?i)[aeiouаеёиоуыэюя]", "");
+    }
+
+    // Task 4
+    public static void printSquares(int a, int b) {
+        int start = Math.min(a, b);
+        int step = Math.abs(a - b);
+        for (int i = 0; i < 5; i++) {
+            int value = start + step * i;
+            System.out.print((value * value) + " ");
+        }
+        System.out.println();
+    }
+
+    // Task 5
+    public static void printSequence(int start, int step, int count) {
+        for (int i = 0; i < count; i++) {
+            System.out.print((start + i * step) + " ");
+        }
+        System.out.println();
+    }
+
+    // Task 6
+    public static void simulateMemory(int[] inputs) {
+        PriorityQueue<Integer> memory = new PriorityQueue<>();
+        for (int num : inputs) {
+            if (memory.size() < 3) {
+                memory.add(num);
+            } else if (num > memory.peek()) {
+                memory.poll();
+                memory.add(num);
+            }
+        }
+        System.out.println("Memory contents: " + memory);
+    }
+
+    // Task 7
+    public static String removeDuplicateWords(String input) {
+        String[] words = input.split(" ");
+        LinkedHashSet<String> uniqueWords = new LinkedHashSet<>(Arrays.asList(words));
+        return String.join(" ", uniqueWords);
+    }
+
+    // Task 8
+    public static String convertCase(String input) {
+        int upper = 0, lower = 0;
+        for (char c : input.toCharArray()) {
+            if (Character.isUpperCase(c)) upper++;
+            else if (Character.isLowerCase(c)) lower++;
+        }
+        return upper > lower ? input.toUpperCase() : input.toLowerCase();
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        // Примеры использования:
+        System.out.println("Task 1: " + isSuffix("abc", "bc"));
+
+        System.out.print("Task 2 - Имя: ");
+        greet(sc.nextLine());
+
+        System.out.print("Task 3 - Строка: ");
+        System.out.println(removeVowels(sc.nextLine()));
+
+        System.out.print("Task 4 - Два числа: ");
+        printSquares(sc.nextInt(), sc.nextInt());
+
+        System.out.print("Task 5 - Три числа: ");
+        printSequence(sc.nextInt(), sc.nextInt(), sc.nextInt());
+
+        System.out.println("Task 6 - Ввод 5 чисел для памяти:");
+        int[] memInput = new int[5];
+        for (int i = 0; i < 5; i++) memInput[i] = sc.nextInt();
+        simulateMemory(memInput);
+
+        sc.nextLine(); // consume newline
+
+        System.out.print("Task 7 - Повторяющаяся строка: ");
+        System.out.println(removeDuplicateWords(sc.nextLine()));
+
+        System.out.print("Task 8 - Строка для изменения регистра: ");
+        System.out.println(convertCase(sc.nextLine()));
+
+        sc.close();
+    }
+}
